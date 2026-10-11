@@ -103,6 +103,7 @@ export function CoreTimeline({
   } | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropTrack, setDropTrack] = useState<string | null>(null);
+  const [dragGhost, setDragGhost] = useState<{ trackId: string; start: number } | null>(null);
 
   const excludedIds = useCallback((clipId: string): Set<string> => {
     const state = core.store.getState();
@@ -178,6 +179,7 @@ export function CoreTimeline({
       exclude: excludedIds(clipId),
     };
     setDragId(clipId);
+    setDragGhost({ trackId, start: clip.timing.display.from });
     const resolve = (clientX: number, alt: boolean) => {
       const state = dragRef.current;
       if (!state) return null;
@@ -205,9 +207,11 @@ export function CoreTimeline({
     const onMove = (ev: PointerEvent) => {
       const el = document.elementFromPoint(ev.clientX, ev.clientY);
       const row = el?.closest("[data-track-id]") as HTMLElement | null;
+      const target = row?.dataset.trackId ?? trackId;
       setDropTrack(row?.dataset.trackId ?? null);
       const res = resolve(ev.clientX, ev.altKey);
       setSnapGuide(res?.guide ?? null);
+      if (res) setDragGhost({ trackId: target, start: res.newStart });
     };
     const onUp = (ev: PointerEvent) => {
       window.removeEventListener("pointermove", onMove);
@@ -217,6 +221,7 @@ export function CoreTimeline({
         dragRef.current = null;
         setDragId(null);
         setDropTrack(null);
+        setDragGhost(null);
         setSnapGuide(null);
         return;
       }
@@ -224,6 +229,7 @@ export function CoreTimeline({
       dragRef.current = null;
       setDragId(null);
       setDropTrack(null);
+      setDragGhost(null);
       setSnapGuide(null);
       const newStart =
         res?.newStart ??
@@ -257,6 +263,7 @@ export function CoreTimeline({
     const exclude = excludedIds(clipId);
     const move = (clientX: number, alt: boolean) => {
       let ticks = secondsToTicks(Math.max(0, (clientX - rect.left) / pps));
+
       if (snapEnabled && !alt) {
         const pts = snapPoints(exclude);
         const threshold = secondsToTicks(SNAP_PX / pps);
@@ -474,6 +481,24 @@ export function CoreTimeline({
                       </div>
                     );
                   })}
+                  {dragGhost && dragGhost.trackId === track.id && dragId
+                    ? (() => {
+                        const ghost = clips[dragId] as AnyClip | undefined;
+                        if (!ghost) return null;
+                        const startS = ticksToSeconds(dragGhost.start);
+                        const durS = ticksToSeconds(ghost.timing.duration);
+                        return (
+                          <div
+                            className={`clip ${kind} ghost`}
+                            style={{ left: startS * pps, width: Math.max(6, durS * pps) }}
+                          >
+                            <div className="clip-label">
+                              <span className="clip-name">{ghost.name}</span>
+                            </div>
+                          </div>
+                        );
+                      })()
+                    : null}
                 </div>
               );
             })}

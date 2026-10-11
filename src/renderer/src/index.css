@@ -74,7 +74,6 @@ body {
   background: var(--panel-2);
   color: var(--text);
   padding: 6px 12px;
-  border-radius: 6px;
   cursor: pointer;
   font: inherit;
   transition: background 0.12s ease, border-color 0.12s ease;
@@ -185,7 +184,6 @@ body {
   align-items: center;
   gap: 6px;
   padding: 5px 6px;
-  border-radius: 5px;
   font-size: 12px;
 }
 
@@ -221,7 +219,6 @@ body {
   justify-content: center;
   padding: 3px;
   border: none;
-  border-radius: 4px;
   background: transparent;
   color: var(--muted);
   cursor: pointer;
@@ -250,7 +247,6 @@ body {
   min-height: 0;
   background: #000;
   border: 1px solid var(--line);
-  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -330,6 +326,7 @@ body {
   cursor: row-resize;
   background: var(--panel);
   touch-action: none;
+  border-radius: 2px;
   z-index: 5;
 }
 
@@ -555,8 +552,8 @@ body {
   position: absolute;
   top: 6px;
   bottom: 6px;
-  border-radius: 6px;
   overflow: hidden;
+  border-radius: 4px;
   padding: 6px 8px;
   display: flex;
   flex-direction: column;
@@ -566,7 +563,7 @@ body {
 }
 
 .clip.dragging {
-  opacity: 0.8;
+  opacity: 0.3;
   z-index: 20;
   cursor: grabbing;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
@@ -591,6 +588,17 @@ body {
 .clip.audio {
   background: linear-gradient(180deg, var(--clip-audio-top), var(--clip-audio-bottom));
   border: 1px solid #3bbf93;
+}
+
+.clip.ghost {
+  pointer-events: none;
+  opacity: 0.65;
+  z-index: 15;
+  border: 1px dashed #ffffff;
+  background: rgba(76, 141, 255, 0.3);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  transform: scale(0.97);
+  transform-origin: center;
 }
 
 .clip-label {
